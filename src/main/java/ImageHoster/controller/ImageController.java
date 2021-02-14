@@ -1,8 +1,10 @@
 package ImageHoster.controller;
 
+import ImageHoster.model.Comment;
 import ImageHoster.model.Image;
 import ImageHoster.model.Tag;
 import ImageHoster.model.User;
+import ImageHoster.service.CommentService;
 import ImageHoster.service.ImageService;
 import ImageHoster.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 
 @Controller
@@ -27,6 +30,9 @@ public class ImageController {
 
     @Autowired
     private TagService tagService;
+
+    @Autowired
+    private CommentService commentService;
 
     //This method displays all the images in the user home page after successful login
     @RequestMapping("images")
@@ -51,7 +57,28 @@ public class ImageController {
         Image image = imageService.getImage(imageId);
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
+        model.addAttribute("comments", image.getComments());
         return "images/image";
+    }
+
+    //This controller method is called when the user creates a new comment
+    //The logic is to get the image from the databse with the given id and the user from the httpSession.
+    //After getting the image and the user, we create a new comment and send it to commentService for persistence
+    @RequestMapping(value = "/image/{imageId}/comments", method = RequestMethod.POST)
+    public String createComment(@PathVariable("imageId") Integer imageId, @RequestParam("comment") String text, HttpSession httpSession, RedirectAttributes redirectAttributes) throws IOException {
+        User user = (User) httpSession.getAttribute("loggeduser");
+        Image image = imageService.getImage(imageId);
+
+        Comment newComment = new Comment();
+        newComment.setUser(user);
+        newComment.setImage(image);
+        newComment.setText(text);
+        newComment.setCreatedDate(LocalDate.now());
+
+        commentService.createNewComment(newComment);
+
+        redirectAttributes.addAttribute("imageId", imageId);
+        return "redirect:/images/{imageId}";
     }
 
     //This controller method is called when the request pattern is of type 'images/upload'
