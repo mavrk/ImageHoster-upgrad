@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 @Controller
 public class UserController {
 
-    final String PASSWORD_REGEX = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*+=])(?=\\S+$).{4,}$";
+    final String PASSWORD_REGEX = "^(?=.*[0-9])(?=.*[a-z])(?=.*[!@#$%^&*+=])(?=\\S+$).{4,}$";
 
     @Autowired
     private UserService userService;
@@ -48,7 +48,7 @@ public class UserController {
             userService.registerUser(user);
             return "redirect:/users/login";
         } else {
-            String passwordTypeError = "Password must contain at least 1 alphabet, 1 number & 1 special character";
+            String passwordTypeError = "Password must contain atleast 1 alphabet, 1 number & 1 special character";
             redirectAttributes.addFlashAttribute("passwordTypeError", passwordTypeError);
             return "redirect:/users/registration";
         }
